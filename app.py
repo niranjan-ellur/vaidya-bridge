@@ -20,6 +20,20 @@ DPDP Act compliant: zero data persistence, fully stateless.
 
 from __future__ import annotations
 
+# ---------------------------------------------------------------------------
+# Auto-load .env file (stdlib only — no python-dotenv required)
+# ---------------------------------------------------------------------------
+import pathlib as _pathlib
+_env_file = _pathlib.Path(__file__).parent / ".env"
+if _env_file.exists():
+    for _line in _env_file.read_text(encoding="utf-8").splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            import os as _os
+            _os.environ.setdefault(_k.strip(), _v.strip())
+    del _env_file, _line, _pathlib
+
 import base64 as b64lib
 import hashlib
 import json
@@ -70,9 +84,9 @@ class Config:
     PHARMACY_SEARCH_RADIUS_M: int = 5000
     PHARMACY_MAX_RESULTS: int = 3
     REQUESTS_TIMEOUT_SEC: int = 5
-    GEMINI_EXTRACT_MODEL: str = "gemini-1.5-pro"
-    GEMINI_VERIFY_MODEL: str = "gemini-1.5-pro"
-    GEMINI_TRANSLATE_MODEL: str = "gemini-1.5-flash"
+    GEMINI_EXTRACT_MODEL: str = "gemini-2.5-flash"
+    GEMINI_VERIFY_MODEL: str = "gemini-2.5-flash"
+    GEMINI_TRANSLATE_MODEL: str = "gemini-2.5-flash"
 
 
 # ---------------------------------------------------------------------------
@@ -167,14 +181,20 @@ app.config["MAX_CONTENT_LENGTH"] = Config.MAX_CONTENT_BYTES
 # Gemini client — initialised once at startup, reused across all requests
 _gemini_client: Optional[genai.Client] = None
 
-if Config.GEMINI_API_KEY:
-    _gemini_client = genai.Client(api_key=Config.GEMINI_API_KEY)
-    logger.info(
-        "Gemini client initialised. Models: %s / %s / %s",
-        Config.GEMINI_EXTRACT_MODEL,
-        Config.GEMINI_VERIFY_MODEL,
-        Config.GEMINI_TRANSLATE_MODEL,
-    )
+_api_key = os.environ.get("GEMINI_API_KEY", "")
+logger.info("GEMINI_API_KEY found: %s", bool(_api_key))
+if _api_key:
+    try:
+        _gemini_client = genai.Client(api_key=_api_key)
+        logger.info(
+            "Gemini client initialised. Models: %s / %s / %s",
+            Config.GEMINI_EXTRACT_MODEL,
+            Config.GEMINI_VERIFY_MODEL,
+            Config.GEMINI_TRANSLATE_MODEL,
+        )
+    except Exception as exc:
+        logger.warning("Gemini client init failed: %s", exc)
+        _gemini_client = None
 else:
     logger.warning("GEMINI_API_KEY not set — /analyze will return 503")
 
@@ -680,7 +700,7 @@ def analyze() -> tuple[Response, int]:
         logger.warning("[%s] Rate limit exceeded for %s", request_id, client_ip)
         return jsonify({"error": ERROR_MESSAGES["rate_limited"], "request_id": request_id}), 429
 
-    if not Config.GEMINI_API_KEY:
+    if not _gemini_client:
         return jsonify({"error": ERROR_MESSAGES["not_configured"], "request_id": request_id}), 503
 
     payload = request.get_json(silent=True)
