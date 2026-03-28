@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description"
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0F6E56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="VaidyaBridge">
+<meta property="og:title" content="VaidyaBridge — AI Health Bridge for Rural India">
+<meta property="og:description" content="Converts messy patient inputs into life-saving actions for ASHA workers. Powered by Gemini AI.">
+<meta property="og:type" content="website"> content="VaidyaBridge — AI health bridge converting messy patient inputs into structured, life-saving actions for rural India. Powered by Gemini AI.">
+<title>VaidyaBridge — AI Health Bridge for Rural India</title>
+<style>
+:root{--teal:#0F6E56;--teal-dark:#085041;--bg:#f8f7f4;--card:#fff;--border:#e2e0d9;--text:#2c2c2a;--muted:#5f5e5a;--focus:#0F6E56}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.5}
+a:focus,button:focus,input:focus,textarea:focus,select:focus{outline:3px solid var(--focus);outline-offset:2px}
+.skip-link{position:absolute;top:-40px;left:0;background:var(--teal);color:#fff;padding:8px 16px;border-radius:0 0 8px 0;text-decoration:none;font-weight:600;z-index:100}
+.skip-link:focus{top:0}
+header{background:var(--teal);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px}
+header .logo{font-size:20px;font-weight:700}
+header .tagline{font-size:13px;opacity:.85}
+header .badge{margin-left:auto;background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.container{max-width:960px;margin:0 auto;padding:24px 16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.lang-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.lang-btn{padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:transparent;cursor:pointer;font-size:13px;color:var(--text)}
+.lang-btn.active,.lang-btn[aria-pressed="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
+.lang-btn:hover{border-color:var(--teal)}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:14px}
+textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:14px;resize:vertical;min-height:110px;font-family:inherit;background:var(--bg);color:var(--text)}
+textarea:focus{outline:3px solid var(--focus);outline-offset:0;border-color:var(--teal)}
+.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:18px;text-align:center;cursor:pointer;font-size:13px;color:var(--muted);margin-top:4px}
+.upload-zone:hover,.upload-zone:focus-within{border-color:var(--teal)}
+.upload-zone.has-image{border-style:solid;border-color:var(--teal);background:#f0faf7}
+.upload-zone input{position:absolute;width:1px;height:1px;opacity:0}
+#preview-img{max-width:100%;max-height:140px;border-radius:6px;display:none;margin-top:8px}
+.loc-row{display:flex;align-items:center;gap:8px;margin-top:12px}
+.loc-btn{padding:7px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;font-size:13px;color:var(--text)}
+.loc-btn:hover{border-color:var(--teal)}
+#location-status{font-size:12px;color:var(--muted)}
+.btn-analyze{width:100%;padding:14px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-analyze:hover{background:var(--teal-dark)}
+.btn-analyze:disabled{opacity:.5;cursor:not-allowed}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spinner{animation:none}}
+.triage-badge{border-radius:10px;padding:16px 20px;color:#fff;margin-bottom:14px}
+.triage-level{font-size:26px;font-weight:700}
+.triage-reason{font-size:14px;opacity:.9;margin-top:4px}
+.triage-action{font-size:13px;background:rgba(0,0,0,.2);padding:6px 10px;border-radius:6px;margin-top:10px}
+.section{margin-bottom:14px}
+.section-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:#f0f0ea;border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:13px;color:var(--text)}
+.tag.danger{background:#fef2f2;border-color:#fca5a5;color:#b91c1c}
+.confidence{display:inline-flex;align-items:center;font-size:12px;padding:3px 10px;border-radius:20px}
+.confidence.HIGH{background:#f0fdf4;color:#166534}
+.confidence.MEDIUM{background:#fffbeb;color:#92400e}
+.confidence.LOW{background:#fef2f2;color:#b91c1c}
+.abdm-badge{display:inline-flex;align-items:center;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.asha-box{background:#f0faf7;border:1px solid #a7f3d0;border-radius:8px;padding:14px;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text)}
+.asha-box.translated{background:#f5f3ff;border-color:#c4b5fd;margin-top:10px;font-size:15px}
+.pharma-card{border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.pharma-name{font-weight:600;font-size:14px}
+.pharma-addr{font-size:12px;color:var(--muted);margin-top:2px}
+.open-badge{font-size:11px;padding:2px 8px;border-radius:10px}
+.open-badge.open{background:#f0fdf4;color:#166534}
+.open-badge.closed{background:#fef2f2;color:#b91c1c}
+.disclaimer{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;font-size:13px;color:#92400e;margin-top:14px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+#results{display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+#status-msg{font-size:13px;color:var(--muted);margin-top:8px;min-height:20px}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "VaidyaBridge",
+  "description": "AI health bridge converting messy patient inputs into structured, verified actions for rural India ASHA workers",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Any",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "INR"},
+  "creator": {"@type": "Person", "name": "niranjan-ellur"}
+}
+</script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<header role="banner">
+  <div>
+    <div class="logo" role="img" aria-label="VaidyaBridge logo">🏥 VaidyaBridge</div>
+    <div class="tagline">Turning messy health inputs into life-saving actions · Rural India AI</div>
+  </div>
+  <div class="badge" aria-label="ABDM Ready certification">ABDM Ready</div>
+</header>
+
+<div class="container" id="main-content">
+<div class="grid">
+
+<!-- INPUT PANEL -->
+<section aria-labelledby="input-heading">
+  <div class="card">
+    <h1 id="input-heading" class="card-title" style="font-size:14px">Patient Input</h1>
+
+    <label for="lang-row" id="lang-label">Language / भाषा</label>
+    <div class="lang-row" id="lang-row" role="group" aria-labelledby="lang-label">
+      <button class="lang-btn active" data-lang="en" aria-pressed="true" type="button">English</button>
+      <button class="lang-btn" data-lang="hi" aria-pressed="false" type="button">हिंदी</button>
+      <button class="lang-btn" data-lang="kn" aria-pressed="false" type="button">ಕನ್ನಡ</button>
+      <button class="lang-btn" data-lang="te" aria-pressed="false" type="button">తెలుగు</button>
+      <button class="lang-btn" data-lang="ta" aria-pressed="false" type="button">தமிழ்</button>
+      <button class="lang-btn" data-lang="mr" aria-pressed="false" type="button">मराठी</button>
+    </div>
+
+    <label for="text-input">Describe symptoms / paste report text</label>
+    <textarea
+      id="text-input"
+      name="symptoms"
+      placeholder="Examples:&#10;• 'Pet mein dard hai, 3 din se bukhaar 103F'&#10;• 'Chest pain since 2 hours, BP 160/100'&#10;• Paste lab report values here...&#10;• Any language, any format"
+      aria-describedby="text-hint"
+    ></textarea>
+    <span id="text-hint" class="sr-only">Enter patient symptoms in any Indian language or English. You can also paste lab report values.</span>
+
+    <label for="file-input">Upload prescription / lab report photo (optional)</label>
+    <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Upload prescription or lab report photo"
+         onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('file-input').click()">
+      <input type="file" id="file-input" name="medical-image" accept="image/*"
+             aria-label="Select medical image file" onchange="handleImage(this)">
+      <div id="upload-text" aria-live="polite">📷 Tap to upload photo (prescription, lab report, etc.)</div>
+      <img id="preview-img" alt="Preview of uploaded medical image" role="img">
+    </div>
+
+    <div class="loc-row">
+      <button class="loc-btn" type="button" onclick="getLocation()" aria-describedby="loc-hint">📍 Get my location</button>
+      <span id="location-status" aria-live="polite">for nearby pharmacy search</span>
+    </div>
+    <span id="loc-hint" class="sr-only">Share your GPS location to find nearby Jan Aushadhi pharmacies</span>
+
+    <button class="btn-analyze" id="analyze-btn" type="button" onclick="analyze()" aria-describedby="analyze-hint">
+      <span id="btn-text">🔬 Analyze with Gemini AI</span>
+      <div class="spinner" id="spinner" role="status" aria-label="Analyzing..."></div>
+    </button>
+    <span id="analyze-hint" class="sr-only">Submit patient information for AI analysis, triage, and ASHA worker instructions</span>
+    <div id="status-msg" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- RESULTS PANEL -->
+<section aria-labelledby="results-heading" aria-live="polite">
+  <h2 id="results-heading" class="sr-only">Analysis Results</h2>
+
+  <div id="empty-state" class="card empty-state" role="region" aria-label="Ready state">
+    <div style="font-size:40px;margin-bottom:12px" aria-hidden="true">🩺</div>
+    <div style="font-weight:600;margin-bottom:6px">VaidyaBridge ready</div>
+    <div style="font-size:13px">Enter symptoms or upload a medical image.<br>Gemini AI will extract, verify, and triage in seconds.</div>
+    <div style="margin-top:16px;font-size:12px;color:#bbb">Dual-pass Gemini verification · ABDM compliant · DPDP privacy safe</div>
+  </div>
+
+  <div id="results" role="region" aria-label="Analysis results">
+    <div id="triage-badge" class="triage-badge" role="alert" aria-live="assertive">
+      <div class="triage-level" id="triage-level"></div>
+      <div class="triage-reason" id="triage-reason"></div>
+      <div class="triage-action" id="triage-action"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h3 class="card-title" style="margin:0">Extracted Clinical Data</h3>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="abdm-badge" role="img" aria-label="ABDM compliant format">ABDM</span>
+          <span class="confidence" id="conf-badge" aria-live="polite"></span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label" id="symptoms-label">Symptoms</div>
+        <div class="tag-list" id="symptoms-list" role="list" aria-labelledby="symptoms-label"></div>
+      </div>
+      <div class="section" id="meds-section" style="display:none">
+        <div class="section-label" id="meds-label">Medicines</div>
+        <div class="tag-list" id="meds-list" role="list" aria-labelledby="meds-label"></div>
+      </div>
+      <div class="section" id="inter-section" style="display:none">
+        <div class="section-label" id="inter-label">⚠️ Drug Interactions</div>
+        <div class="tag-list" id="inter-list" role="list" aria-labelledby="inter-label"></div>
+      </div>
+      <div class="section" id="labs-section" style="display:none">
+        <div class="section-label" id="labs-label">Lab Values</div>
+        <div class="tag-list" id="labs-list" role="list" aria-labelledby="labs-label"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <h3 class="card-title">ASHA Worker Instructions</h3>
+      <div class="asha-box" id="asha-en" role="region" aria-label="ASHA worker instructions in English"></div>
+      <div id="asha-tr-wrap" style="display:none">
+        <div style="font-size:11px;color:var(--muted);margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px" id="tr-label">Regional language</div>
+        <div class="asha-box translated" id="asha-tr" role="region" aria-labelledby="tr-label"></div>
+      </div>
+    </div>
+
+    <div class="card" id="pharma-card" style="display:none;margin-bottom:14px">
+      <h3 class="card-title">Nearby Jan Aushadhi / Pharmacies</h3>
+      <div id="pharma-list" role="list"></div>
+    </div>
+
+    <div class="disclaimer" id="disclaimer" role="alert"></div>
+  </div>
+</section>
+
+</div>
+</div>
+
+<script>
+let selectedLang="en",imageBase64=null,userLat=null,userLng=null;
+
+document.querySelectorAll(".lang-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".lang-btn").forEach(b=>{b.classList.remove("active");b.setAttribute("aria-pressed","false");});
+    btn.classList.add("active");btn.setAttribute("aria-pressed","true");
+    selectedLang=btn.dataset.lang;
+  });
+});
+
+function handleImage(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>5*1024*1024){setStatus("Image too large. Max 5MB.");return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    imageBase64=e.target.result.split(",")[1];
+    const img=document.getElementById("preview-img");
+    img.src=e.target.result;img.style.display="block";
+    document.getElementById("upload-text").textContent="✅ "+file.name;
+    document.getElementById("upload-zone").classList.add("has-image");
+  };
+  reader.readAsDataURL(file);
+}
+
+function getLocation(){
+  if(!navigator.geolocation){setStatus("Geolocation not supported by this browser.");return;}
+  document.getElementById("location-status").textContent="Getting location...";
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      userLat=pos.coords.latitude;userLng=pos.coords.longitude;
+      document.getElementById("location-status").textContent=`📍 ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+    },
+    ()=>{document.getElementById("location-status").textContent="Location access denied.";}
+  );
+}
+
+function setStatus(msg){document.getElementById("status-msg").textContent=msg;}
+
+async function analyze(){
+  const text=document.getElementById("text-input").value.trim();
+  if(!text&&!imageBase64){setStatus("Please enter symptoms or upload a medical image.");return;}
+  const btn=document.getElementById("analyze-btn");
+  btn.disabled=true;btn.setAttribute("aria-busy","true");
+  document.getElementById("btn-text").textContent="Analyzing...";
+  document.getElementById("spinner").style.display="block";
+  document.getElementById("empty-state").style.display="none";
+  document.getElementById("results").style.display="none";
+  setStatus("Sending to Gemini AI for analysis...");
+  try{
+    const res=await fetch("/analyze",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text,image_base64:imageBase64,language:selectedLang,lat:userLat,lng:userLng})
+    });
+    const data=await res.json();
+    if(!res.ok||data.error)throw new Error(data.error||"Analysis failed");
+    renderResults(data);
+    setStatus("Analysis complete.");
+  }catch(err){
+    setStatus("Error: "+err.message);
+    document.getElementById("empty-state").style.display="block";
+  }finally{
+    btn.disabled=false;btn.setAttribute("aria-busy","false");
+    document.getElementById("btn-text").textContent="🔬 Analyze with Gemini AI";
+    document.getElementById("spinner").style.display="none";
+  }
+}
+
+function renderResults(d){
+  document.getElementById("results").style.display="block";
+  const t=d.triage;
+  const badge=document.getElementById("triage-badge");
+  badge.style.background=t.color;
+  badge.setAttribute("aria-label","Triage result: "+t.level+" - "+t.label+". "+t.reason);
+  document.getElementById("triage-level").textContent=t.level+" — "+t.label;
+  document.getElementById("triage-reason").textContent=t.reason;
+  document.getElementById("triage-action").textContent="➜ "+t.recommended_action;
+
+  const cb=document.getElementById("conf-badge");
+  const conf=d.data_confidence||"MEDIUM";
+  cb.textContent=conf+" confidence";cb.className="confidence "+conf;
+
+  const sl=document.getElementById("symptoms-list");sl.innerHTML="";
+  (d.extracted.patient_complaints||[]).forEach(s=>{
+    sl.innerHTML+=`<span class="tag" role="listitem">${escHtml(s)}</span>`;
+  });
+  if(!d.extracted.patient_complaints?.length)
+    sl.innerHTML='<span class="tag" role="listitem">See extracted summary</span>';
+
+  const meds=d.extracted.medicines_mentioned||[];
+  if(meds.length){
+    const ml=document.getElementById("meds-list");ml.innerHTML="";
+    meds.forEach(m=>ml.innerHTML+=`<span class="tag" role="listitem">${escHtml(m)}</span>`);
+    document.getElementById("meds-section").style.display="block";
+  }
+
+  const ints=d.drug_interactions||[];
+  if(ints.length){
+    const il=document.getElementById("inter-list");il.innerHTML="";
+    ints.forEach(i=>il.innerHTML+=`<span class="tag danger" role="listitem">⚠️ ${escHtml(i)}</span>`);
+    document.getElementById("inter-section").style.display="block";
+  }
+
+  const labs=d.extracted.lab_values||{};
+  if(Object.keys(labs).length){
+    const ll=document.getElementById("labs-list");ll.innerHTML="";
+    Object.entries(labs).forEach(([k,v])=>ll.innerHTML+=`<span class="tag" role="listitem"><strong>${escHtml(k)}:</strong> ${escHtml(String(v))}</span>`);
+    document.getElementById("labs-section").style.display="block";
+  }
+
+  document.getElementById("asha-en").textContent=d.asha_instructions||"";
+  if(d.asha_instructions_translated&&selectedLang!=="en"){
+    document.getElementById("asha-tr").textContent=d.asha_instructions_translated;
+    document.getElementById("asha-tr-wrap").style.display="block";
+  }
+
+  const ph=d.pharmacies||[];
+  if(ph.length){
+    const pl=document.getElementById("pharma-list");pl.innerHTML="";
+    ph.forEach(p=>{
+      const ob=p.open_now===true?'<span class="open-badge open" aria-label="Open now">Open</span>':
+               p.open_now===false?'<span class="open-badge closed" aria-label="Currently closed">Closed</span>':"";
+      pl.innerHTML+=`<div class="pharma-card" role="listitem">
+        <div><div class="pharma-name">${escHtml(p.name||"")}</div>
+        <div class="pharma-addr">${escHtml(p.address||"")} ${p.rating?"⭐"+p.rating:""}</div></div>
+        ${ob}</div>`;
+    });
+    document.getElementById("pharma-card").style.display="block";
+  }
+  document.getElementById("disclaimer").textContent=d.disclaimer;
+}
+
+function escHtml(str){
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+</script>
+</body>
+</html>

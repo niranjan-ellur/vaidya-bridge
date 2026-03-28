@@ -1,0 +1,20 @@
+{
+  "name": "VaidyaBridge",
+  "short_name": "VaidyaBridge",
+  "description": "AI health bridge for rural India — Gemini-powered triage and ASHA worker support",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f7f4",
+  "theme_color": "#0F6E56",
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "medical", "utilities"],
+  "dir": "ltr"
+}

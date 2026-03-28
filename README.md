@@ -1,191 +1,210 @@
 # 🏥 VaidyaBridge
 
-**Universal AI bridge between messy patient inputs and life-saving health actions for rural India.**
+> **Universal AI bridge between messy patient inputs and life-saving health actions for rural India.**
 
-> Built for Google PromptWars 2026 · Powered by Gemini 1.5 Pro · ABDM Compliant
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/flask-3.0-green.svg)](https://flask.palletsprojects.com)
+[![Gemini 1.5 Pro](https://img.shields.io/badge/gemini-1.5--pro-orange.svg)](https://ai.google.dev)
+[![ABDM Ready](https://img.shields.io/badge/ABDM-ready-teal.svg)](https://abdm.gov.in)
+[![Tests](https://img.shields.io/badge/tests-98%20passing-brightgreen.svg)]()
 
----
-
-## Chosen Vertical
-
-**Healthcare — Rural India Last-Mile Health Bridge**
-
-India has 0.7 doctors per 1,000 people (WHO recommends 1+) while carrying 20% of the world's disease burden. VaidyaBridge empowers ASHA (Accredited Social Health Activist) workers and rural patients by converting chaotic, multilingual health inputs into structured, verified, actionable outputs — instantly.
+**Built for Google PromptWars 2026** · Powered by Gemini 1.5 Pro · DPDP Act Compliant
 
 ---
 
-## Problem Statement Alignment
+## The Problem
 
-| Requirement | VaidyaBridge Solution |
-|---|---|
-| Unstructured, messy real-world inputs | Voice descriptions, crumpled prescription photos, blurry lab reports, WhatsApp-style mixed-language text |
-| Structured, verified outputs | ABDM-formatted health summaries with dual-pass Gemini verification |
-| Life-saving actions | RED/YELLOW/GREEN triage, drug interaction warnings, nearest pharmacy routing |
-| Universal bridge | Works across 6 Indian languages, any input format |
+India has **0.7 doctors per 1,000 people** (WHO recommends 1+) while carrying **20% of the world's disease burden**. 1.3 million ASHA workers bridge this gap — but they receive patients with crumpled prescriptions, blurry lab reports, and voice descriptions in 22+ languages. There is no tool to turn this chaos into action.
 
----
+## The Solution
 
-## Approach and Logic
-
-### Architecture
+VaidyaBridge takes **any combination of messy inputs** and returns **structured, verified, life-saving outputs** in under 10 seconds.
 
 ```
-[Messy Input] → [Gemini Pass 1: Extract] → [Gemini Pass 2: Verify + Triage] → [Structured Output]
-     ↓                                              ↓
-Voice/Text/Image                         Google Cloud APIs
-(any language)                      Speech · Vision · Translate · Maps
+[Voice/Text in any Indian language]  ┐
+[Photo of handwritten prescription]  ├─▶ VaidyaBridge ─▶ [Triage + ASHA instructions]
+[Blurry lab report scan]             ┘    (Gemini AI)      [ABDM health summary]
+                                                            [Nearby Jan Aushadhi pharmacy]
+                                                            [Regional language translation]
 ```
 
-### Two-Pass Gemini Architecture (Hallucination Guard)
+---
 
-**Pass 1 — Extraction:**
-- Gemini 1.5 Pro processes multimodal input (text + image simultaneously)
-- Extracts: symptoms, medicines, lab values, vitals, duration, allergies
-- Handles 6 Indian languages natively
+## Architecture
 
-**Pass 2 — Verification:**
-- Independent Gemini instance reviews Pass 1 output
-- Assigns triage level (RED/YELLOW/GREEN) based on clinical urgency rules
-- Detects drug interactions
-- Flags implausible or potentially hallucinated data
-- Returns confidence score (HIGH/MEDIUM/LOW)
+### Dual-Pass Gemini Pipeline
 
-### Google Services Integration
+```
+Input ──▶ Cloud Vision OCR ──▶ Gemini 1.5 Pro (Pass 1: Extract) ──▶ Gemini 1.5 Pro (Pass 2: Verify)
+                                      │                                        │
+                                 Clinical data                         Hallucination guard
+                                 extraction                            + RED/YELLOW/GREEN triage
+                                                                       + Drug interaction check
+                                                                       + Confidence scoring
+```
 
-| Service | Usage |
+### Google Services Used
+
+| Service | Purpose |
 |---|---|
-| **Gemini 1.5 Pro** | Dual-pass clinical extraction and verification |
-| **Gemini 1.5 Flash** | Regional language translation (fallback) |
-| **Google Cloud Vision API** | OCR on prescription/lab report images |
-| **Google Cloud Translation API** | ASHA instructions in Hindi/Kannada/Telugu/Tamil/Marathi |
+| **Gemini 1.5 Pro** | Pass 1: Multimodal clinical extraction (text + image) |
+| **Gemini 1.5 Pro** | Pass 2: Independent verification + hallucination guard |
+| **Gemini 1.5 Flash** | Regional language translation fallback |
+| **Google Cloud Vision API** | Dedicated OCR for prescription/lab report images |
+| **Google Cloud Translation API** | High-quality ASHA instruction translation |
 | **Google Maps Places API** | Nearest Jan Aushadhi pharmacy locator |
+| **Google Cloud Run** | Serverless, auto-scaling deployment |
+| **Google Cloud Build** | CI/CD: tests → build → deploy pipeline |
 
 ---
 
-## How the Solution Works
+## Features
 
-### User Flow
-
-1. **ASHA worker or patient opens VaidyaBridge**
-2. **Selects language** (English/Hindi/Kannada/Telugu/Tamil/Marathi)
-3. **Provides input** — any combination of:
-   - Typed/spoken symptom description in any language
-   - Photo of prescription (handwritten, crumpled, any quality)
-   - Photo of lab report (blurry, thermal print, any format)
-4. **Optionally shares location** for pharmacy search
-5. **Taps Analyze** → results in ~10 seconds
-
-### Output Structure
-
-```json
-{
-  "triage": {
-    "level": "RED | YELLOW | GREEN",
-    "label": "Emergency | Urgent | Stable",
-    "reason": "Clinical justification",
-    "recommended_action": "Specific next step"
-  },
-  "extracted": {
-    "patient_complaints": ["symptoms"],
-    "medicines_mentioned": ["drugs"],
-    "lab_values": {"test": "value"},
-    "duration": "symptom duration"
-  },
-  "drug_interactions": ["dangerous combinations if any"],
-  "data_confidence": "HIGH | MEDIUM | LOW",
-  "flagged_concerns": ["implausible data warnings"],
-  "abdm_summary": { ... },
-  "asha_instructions": "Step by step plain English",
-  "asha_instructions_translated": "Regional language translation",
-  "pharmacies": [{ "name": "...", "address": "...", "open_now": true }],
-  "disclaimer": "NOT a medical diagnosis warning"
-}
-```
+- 🔬 **Dual-pass Gemini** — Extract then independently verify to catch hallucinations
+- 🌐 **6 Indian languages** — Hindi, Kannada, Telugu, Tamil, Marathi, Bengali
+- 🚨 **RED/YELLOW/GREEN triage** — Clinical urgency engine with 112 emergency contact
+- 💊 **Drug interaction detection** — Flags dangerous medication combinations
+- 📋 **ABDM-compliant output** — Ayushman Bharat Digital Mission format
+- 🏪 **Jan Aushadhi locator** — Google Maps pharmacy finder with open/closed status
+- 🔒 **DPDP Act compliant** — Zero data persistence, fully stateless
+- ♿ **Fully accessible** — ARIA labels, skip links, live regions, keyboard navigation
+- 🛡️ **Security hardened** — Rate limiting, input sanitisation, CSP headers, non-root Docker
 
 ---
 
-## Safety and Compliance
-
-- **DPDP Act compliance**: No patient data stored; all processing is stateless
-- **Hallucination guard**: Every extraction is independently verified by a second Gemini pass
-- **Medical disclaimer**: Prominently shown on every result — "NOT a medical diagnosis. Always consult a qualified doctor. Emergency: call 112."
-- **Confidence scoring**: LOW confidence results explicitly warn ASHA workers
-- **India-native**: ABDM (Ayushman Bharat Digital Mission) output format
-
----
-
-## Assumptions Made
-
-1. Users may have low internet bandwidth — UI is minimal and fast-loading
-2. Prescription images may be low quality — Gemini's vision handles gracefully
-3. Google Maps API may not have all Jan Aushadhi stores — falls back to "pharmacy" keyword search
-4. Translation quality for medical terms varies — English instructions always shown alongside regional
-5. This is a decision-support tool, not a diagnostic system — doctor consultation always recommended
-
----
-
-## Tech Stack
-
-- **Backend**: Python 3.11, Flask, Gunicorn
-- **AI**: Google Gemini 1.5 Pro (dual-pass), Gemini 1.5 Flash (translation fallback)
-- **Google APIs**: Cloud Vision, Cloud Translation, Maps Places
-- **Deployment**: Google Cloud Run (containerized, auto-scaling)
-- **Frontend**: Vanilla HTML/CSS/JS (no framework dependency, works on low-end devices)
-
----
-
-## Local Development
+## Quick Start
 
 ```bash
 git clone https://github.com/niranjan-ellur/vaidya-bridge
 cd vaidya-bridge
+
+cp .env.example .env
+# Edit .env with your API keys
+
 pip install -r requirements.txt
-export GEMINI_API_KEY=your_key_here
-export GOOGLE_MAPS_API_KEY=your_maps_key_here
 python app.py
 # Open http://localhost:8080
 ```
 
 ---
 
-## Deployment (Cloud Run)
+## Running Tests
+
+```bash
+pytest tests/ -v --cov=app --cov-report=term-missing
+# 98 tests, >80% coverage
+```
+
+---
+
+## Deploy to Cloud Run
 
 ```bash
 gcloud builds submit --tag gcr.io/vaidya-bridge/vaidya-bridge
+
 gcloud run deploy vaidya-bridge \
   --image gcr.io/vaidya-bridge/vaidya-bridge \
   --platform managed \
   --region asia-south1 \
   --allow-unauthenticated \
-  --set-env-vars GEMINI_API_KEY=your_key,GOOGLE_MAPS_API_KEY=your_maps_key
+  --memory 512Mi \
+  --timeout 120 \
+  --set-env-vars "GEMINI_API_KEY=YOUR_KEY,GOOGLE_MAPS_API_KEY=YOUR_KEY"
+```
+
+**Live URL:** https://vaidya-bridge-606576029560.asia-south1.run.app
+
+---
+
+## Project Structure
+
+```
+vaidya-bridge/
+├── app.py                  # Main Flask application (2.0.0)
+├── templates/
+│   └── index.html          # Accessible single-page UI
+├── static/
+│   └── manifest.json       # PWA web app manifest
+├── tests/
+│   ├── conftest.py         # Shared fixtures
+│   └── test_app.py         # 98 unit + integration tests
+├── Dockerfile              # Multi-stage, non-root build
+├── cloudbuild.yaml         # CI/CD: test → build → deploy
+├── requirements.txt        # Pinned dependencies
+├── pyproject.toml          # Tool config (pytest, ruff, mypy)
+├── .env.example            # Environment variable template
+├── SECURITY.md             # Security policy
+└── README.md
 ```
 
 ---
 
-## Changes/Updates in Deployed Version
+## API Reference
 
-### v1.0 — Initial Deployment
-- Dual-pass Gemini architecture for hallucination guard
-- Multimodal input: simultaneous text + image processing
-- Triage system: RED/YELLOW/GREEN with clinical urgency rules
-- ABDM-compliant structured output format
-- 6 Indian language support (Hindi, Kannada, Telugu, Tamil, Marathi, English)
-- Drug interaction detection via Gemini verification pass
-- Data confidence scoring (HIGH/MEDIUM/LOW)
-- DPDP Act compliant: zero data persistence, stateless processing
-- Jan Aushadhi pharmacy locator via Google Maps Places API
-- Mobile-responsive UI optimized for low-end Android devices
-- Prominent medical disclaimer on all results
-- Emergency contact (112) always visible in RED triage
+### `POST /analyze`
+
+**Request:**
+```json
+{
+  "text": "Patient has fever 103F and chest pain",
+  "image_base64": "<base64-encoded-image>",
+  "language": "hi",
+  "lat": 12.9716,
+  "lng": 77.5946
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "triage": {
+    "level": "RED",
+    "label": "Emergency",
+    "reason": "Chest pain with high fever requires immediate evaluation",
+    "recommended_action": "Seek immediate hospital care — call 112 now"
+  },
+  "extracted": {
+    "patient_complaints": ["chest pain", "fever 103F"],
+    "medicines_mentioned": [],
+    "lab_values": {}
+  },
+  "drug_interactions": [],
+  "data_confidence": "HIGH",
+  "abdm_summary": { ... },
+  "asha_instructions": "1. Call 112 immediately...",
+  "asha_instructions_translated": "१. तुरंत 112 पर कॉल करें...",
+  "pharmacies": [{ "name": "Jan Aushadhi Store", "address": "...", "open_now": true }],
+  "disclaimer": "⚠️ NOT a medical diagnosis. Always consult a qualified doctor."
+}
+```
+
+### `GET /health`
+Returns service status and configuration flags.
 
 ---
 
-## Impact Potential
+## Changes in Deployed Version (v2.0.0)
+
+- Dual-pass Gemini 1.5 Pro architecture with hallucination guard
+- Google Cloud Vision API dedicated OCR pass for prescription images
+- Google Cloud Translation API with Gemini Flash fallback
+- Multi-stage Docker build with non-root user (UID 1001)
+- CI/CD pipeline: tests run before every deploy (cloudbuild.yaml)
+- 98 unit + integration tests with >80% coverage
+- Rate limiting (10 req/min), input sanitisation, CSP security headers
+- Full WCAG accessibility: ARIA, skip links, live regions, keyboard nav
+- PWA manifest, structured data (schema.org), meta tags
+- ABDM-compliant output, DPDP Act compliance, zero data persistence
+
+---
+
+## Impact
 
 - **1.3 million ASHA workers** in India who can use this immediately
 - **650,000+ villages** with limited doctor access
-- Directly aligned with **Ayushman Bharat Digital Mission (ABDM)** national initiative
-- Compatible with **National Health Stack** output format
+- Aligned with **Ayushman Bharat Digital Mission (ABDM)** national initiative
+- Addresses India's **0.7 doctors per 1,000 people** healthcare gap
 
 ---
 
