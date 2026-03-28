@@ -4,11 +4,11 @@
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://python.org)
 [![Flask](https://img.shields.io/badge/flask-3.0-green.svg)](https://flask.palletsprojects.com)
-[![Gemini 1.5 Pro](https://img.shields.io/badge/gemini-1.5--pro-orange.svg)](https://ai.google.dev)
+gemini 2.5flash
 [![ABDM Ready](https://img.shields.io/badge/ABDM-ready-teal.svg)](https://abdm.gov.in)
 [![Tests](https://img.shields.io/badge/tests-98%20passing-brightgreen.svg)]()
 
-**Built for Google PromptWars 2026** · Powered by Gemini 1.5 Pro · DPDP Act Compliant
+**Built for Google PromptWars 2026** · Powered by Gemini 2.5 flash · DPDP Act Compliant
 
 ---
 
@@ -35,7 +35,7 @@ VaidyaBridge takes **any combination of messy inputs** and returns **structured,
 ### Dual-Pass Gemini Pipeline
 
 ```
-Input ──▶ Cloud Vision OCR ──▶ Gemini 1.5 Pro (Pass 1: Extract) ──▶ Gemini 1.5 Pro (Pass 2: Verify)
+Input ──▶ Cloud Vision OCR ──▶ Gemini 2.5 flash (Pass 1: Extract) ──▶ Gemini 2.5 flash (Pass 2: Verify)
                                       │                                        │
                                  Clinical data                         Hallucination guard
                                  extraction                            + RED/YELLOW/GREEN triage
@@ -47,9 +47,9 @@ Input ──▶ Cloud Vision OCR ──▶ Gemini 1.5 Pro (Pass 1: Extract) ─�
 
 | Service | Purpose |
 |---|---|
-| **Gemini 1.5 Pro** | Pass 1: Multimodal clinical extraction (text + image) |
-| **Gemini 1.5 Pro** | Pass 2: Independent verification + hallucination guard |
-| **Gemini 1.5 Flash** | Regional language translation fallback |
+| **Gemini 2.5 flash** | Pass 1: Multimodal clinical extraction (text + image) |
+| **Gemini 2.5 flash** | Pass 2: Independent verification + hallucination guard |
+| **Gemini 2.5 Flash** | Regional language translation fallback |
 | **Google Cloud Vision API** | Dedicated OCR for prescription/lab report images |
 | **Google Cloud Translation API** | High-quality ASHA instruction translation |
 | **Google Maps Places API** | Nearest Jan Aushadhi pharmacy locator |
@@ -78,8 +78,7 @@ Input ──▶ Cloud Vision OCR ──▶ Gemini 1.5 Pro (Pass 1: Extract) ─�
 git clone https://github.com/niranjan-ellur/vaidya-bridge
 cd vaidya-bridge
 
-cp .env.example .env
-# Edit .env with your API keys
+
 
 pip install -r requirements.txt
 python app.py
@@ -97,24 +96,6 @@ pytest tests/ -v --cov=app --cov-report=term-missing
 
 ---
 
-## Deploy to Cloud Run
-
-```bash
-gcloud builds submit --tag gcr.io/vaidya-bridge/vaidya-bridge
-
-gcloud run deploy vaidya-bridge \
-  --image gcr.io/vaidya-bridge/vaidya-bridge \
-  --platform managed \
-  --region asia-south1 \
-  --allow-unauthenticated \
-  --memory 512Mi \
-  --timeout 120 \
-  --set-env-vars "GEMINI_API_KEY=YOUR_KEY,GOOGLE_MAPS_API_KEY=YOUR_KEY"
-```
-
-**Live URL:** https://vaidya-bridge-606576029560.asia-south1.run.app
-
----
 
 ## Project Structure
 
@@ -184,18 +165,6 @@ Returns service status and configuration flags.
 
 ---
 
-## Changes in Deployed Version (v2.0.0)
-
-- Dual-pass Gemini 1.5 Pro architecture with hallucination guard
-- Google Cloud Vision API dedicated OCR pass for prescription images
-- Google Cloud Translation API with Gemini Flash fallback
-- Multi-stage Docker build with non-root user (UID 1001)
-- CI/CD pipeline: tests run before every deploy (cloudbuild.yaml)
-- 98 unit + integration tests with >80% coverage
-- Rate limiting (10 req/min), input sanitisation, CSP security headers
-- Full WCAG accessibility: ARIA, skip links, live regions, keyboard nav
-- PWA manifest, structured data (schema.org), meta tags
-- ABDM-compliant output, DPDP Act compliance, zero data persistence
 
 ---
 
